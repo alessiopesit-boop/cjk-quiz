@@ -1,0 +1,159 @@
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #262624;
+  --surface: #30302e;
+  --surface-hover: #3a3a38;
+  --border: #4a4a47;
+  --text: #f5f4ed;
+  --text-dim: #a8a69e;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+html, body { background: var(--bg); min-height: 100vh; }
+body { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif); color: var(--text); }
+#app { padding: 3rem 1.5rem 4rem; max-width: 520px; margin: 0 auto; }
+
+.header { margin-bottom: 2.5rem; }
+.subtitle { font-size: 12px; color: var(--text-dim); font-weight: 300; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.75rem; opacity: 0.8; }
+.title { font-size: 28px; font-weight: 200; letter-spacing: -0.01em; line-height: 1.25; color: var(--text); }
+
+.lang-toggles { display: flex; gap: 8px; margin-bottom: 2.5rem; }
+.lang-btn { flex: 1; padding: 10px 0; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+.lang-btn.active { background: var(--surface); font-weight: 500; }
+.lang-btn.disabled-lang { opacity: 0.4; }
+.lang-btn:hover { background: var(--surface-hover); }
+
+.char-card { background: var(--surface); border-radius: var(--radius-lg); padding: 3rem 1.5rem; text-align: center; margin-bottom: 2.5rem; min-height: 200px; display: flex; align-items: center; justify-content: center; }
+.char-display { font-size: 104px; line-height: 1; user-select: none; font-weight: 300; }
+
+.answers { display: grid; gap: 8px; margin-bottom: 2rem; }
+.ans-btn { padding: 14px 16px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; cursor: pointer; transition: all 0.15s; text-align: left; font-family: inherit; }
+.ans-btn:hover:not(:disabled) { background: var(--surface); }
+.ans-btn.correct { background: #2d3d1f; border-color: #5a8a2e; color: #c5e39a; }
+.ans-btn.wrong { background: #3d1f1f; border-color: #8a3030; color: #e39a9a; }
+.ans-btn:disabled { cursor: default; }
+
+.feedback { text-align: center; font-size: 14px; color: var(--text-dim); min-height: 20px; margin-bottom: 2rem; }
+.score { text-align: center; font-size: 13px; color: var(--text-dim); opacity: 0.7; margin-top: 3rem; }
+.next-btn { width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 14px; cursor: pointer; font-weight: 500; display: none; font-family: inherit; transition: background 0.15s; }
+.next-btn:hover { background: var(--surface-hover); }
+.next-btn.visible { display: block; }
+</style>
+<div id="app">
+  <div class="header">
+    <div class="subtitle">Seleziona almeno due lingue da indovinare</div>
+    <h1 class="title">Riconosci la lingua dei caratteri CJK</h1>
+  </div>
+  <div class="lang-toggles" id="toggles"></div>
+  <div class="char-card"><span class="char-display" id="char">?</span></div>
+  <div class="answers" id="answers"></div>
+  <div class="feedback" id="feedback"></div>
+  <button class="next-btn" id="next-btn" onclick="nextQuestion()">Prossimo carattere →</button>
+  <div class="score" id="score"></div>
+</div>
+<script>
+const DATA = {
+  zh: {
+    label: "Cinese",
+    chars: ["你好","我","爱","汉字","中国","天","地","人","水","火","山","日","月","风","雨","学","书","语","话","文"]
+  },
+  ja: {
+    label: "Giapponese",
+    chars: ["あ","の","は","を","に","が","で","と","も","か","ね","よ","な","き","し","り","て","れ","い","ひらがな","カタカナ","ア","ウ","エ","ク","ス","テ","ト","ノ"]
+  },
+  ko: {
+    label: "Coreano",
+    chars: ["가","나","다","라","마","바","사","아","자","차","카","타","파","하","한국어","안녕","사랑","학교","사람","나라"]
+  }
+};
+
+let active = { zh: true, ja: true, ko: true };
+let score = 0, total = 0;
+let current = null;
+let answered = false;
+
+function activeKeys() { return Object.keys(active).filter(k => active[k]); }
+
+function renderToggles() {
+  const t = document.getElementById('toggles');
+  t.innerHTML = '';
+  Object.keys(DATA).forEach(k => {
+    const on = active[k];
+    const keys = activeKeys();
+    const btn = document.createElement('button');
+    btn.className = 'lang-btn' + (on ? ' active' : ' disabled-lang');
+    btn.textContent = DATA[k].label;
+    btn.onclick = () => {
+      if (on && keys.length <= 2) return;
+      active[k] = !active[k];
+      renderToggles();
+      nextQuestion();
+    };
+    t.appendChild(btn);
+  });
+}
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function nextQuestion() {
+  answered = false;
+  document.getElementById('next-btn').classList.remove('visible');
+  document.getElementById('feedback').textContent = '';
+
+  const keys = activeKeys();
+  const lang = pick(keys);
+  const char = pick(DATA[lang].chars);
+  current = { lang, char };
+
+  document.getElementById('char').textContent = char;
+
+  const wrong = keys.filter(k => k !== lang);
+  const opts = [{ k: lang, label: DATA[lang].label }];
+  wrong.forEach(k => opts.push({ k, label: DATA[k].label }));
+  opts.sort(() => Math.random() - 0.5);
+
+  const ans = document.getElementById('answers');
+  ans.innerHTML = '';
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'ans-btn';
+    btn.textContent = o.label;
+    btn.onclick = () => checkAnswer(o.k, btn, opts, ans);
+    ans.appendChild(btn);
+  });
+
+  updateScore();
+}
+
+function checkAnswer(chosen, btn, opts, container) {
+  if (answered) return;
+  answered = true;
+  total++;
+  const correct = chosen === current.lang;
+  if (correct) score++;
+
+  Array.from(container.children).forEach(b => {
+    b.disabled = true;
+  });
+
+  Array.from(container.children).forEach(b => {
+    const key = opts.find(o => o.label === b.textContent)?.k;
+    if (key === current.lang) b.classList.add('correct');
+    else if (key === chosen && !correct) b.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.textContent = correct ? '✓ Esatto!' : '✗ Era ' + DATA[current.lang].label;
+  document.getElementById('next-btn').classList.add('visible');
+  updateScore();
+}
+
+function updateScore() {
+  const s = document.getElementById('score');
+  s.textContent = total > 0 ? `${score} / ${total} corretti` : '';
+}
+
+renderToggles();
+nextQuestion();
+</script>
