@@ -1,3 +1,21 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz CJK - Riconosci cinese, giapponese e coreano</title>
+<meta name="description" content="Quiz interattivo per imparare a distinguere i caratteri cinesi, giapponesi e coreani. CJK sta per Chinese, Japanese, Korean. Scopri l'etimologia e il significato di ogni carattere.">
+<meta name="keywords" content="quiz CJK, caratteri cinesi, hiragana, katakana, hangul, kanji, lingue asiatiche, riconoscere cinese giapponese coreano">
+<meta name="author" content="CJK Quiz">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="Quiz CJK - Riconosci cinese, giapponese e coreano">
+<meta property="og:description" content="Quiz interattivo per imparare a distinguere i caratteri delle lingue CJK.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="it_IT">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Quiz CJK - Riconosci cinese, giapponese e coreano">
+<meta name="twitter:description" content="Quiz interattivo per imparare a distinguere i caratteri CJK.">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -12,11 +30,23 @@
 }
 html, body { background: var(--bg); min-height: 100vh; }
 body { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif); color: var(--text); }
-#app { padding: 3rem 1.5rem 4rem; max-width: 520px; margin: 0 auto; }
+#app { padding: 2rem 1.5rem 4rem; max-width: 520px; margin: 0 auto; position: relative; }
+
+.topbar { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+.lang-select { position: relative; }
+.lang-select-btn { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text); font-size: 12px; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+.lang-select-btn:hover { background: var(--surface); }
+.lang-select-btn .chev { opacity: 0.6; font-size: 10px; }
+.lang-menu { position: absolute; top: calc(100% + 4px); right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); min-width: 140px; display: none; z-index: 10; overflow: hidden; }
+.lang-menu.open { display: block; }
+.lang-option { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: transparent; border: none; color: var(--text); font-size: 13px; cursor: pointer; width: 100%; text-align: left; font-family: inherit; }
+.lang-option:hover { background: var(--surface-hover); }
+.flag { font-size: 14px; }
 
 .header { margin-bottom: 2.5rem; }
 .subtitle { font-size: 12px; color: var(--text-dim); font-weight: 300; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.75rem; opacity: 0.8; }
-.title { font-size: 28px; font-weight: 200; letter-spacing: -0.01em; line-height: 1.25; color: var(--text); }
+.title { font-size: 28px; font-weight: 200; letter-spacing: -0.01em; line-height: 1.25; color: var(--text); margin-bottom: 0.75rem; }
+.tagline { font-size: 13px; font-weight: 300; color: var(--text-dim); line-height: 1.5; opacity: 0.85; }
 
 .lang-toggles { display: flex; gap: 8px; margin-bottom: 2.5rem; }
 .lang-btn { flex: 1; padding: 10px 0; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
@@ -35,62 +65,162 @@ body { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe U
 .ans-btn:disabled { cursor: default; }
 
 .feedback { text-align: center; font-size: 14px; color: var(--text-dim); min-height: 20px; margin-bottom: 2rem; }
-.score { text-align: center; font-size: 13px; color: var(--text-dim); opacity: 0.7; margin-top: 3rem; }
 .next-btn { width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 14px; cursor: pointer; font-weight: 500; display: none; font-family: inherit; transition: background 0.15s; }
 .next-btn:hover { background: var(--surface-hover); }
 .next-btn.visible { display: block; }
+
+.discover-btn { display: none; width: 100%; padding: 10px; border-radius: var(--radius-md); border: 1px solid transparent; background: transparent; color: var(--text-dim); font-size: 13px; cursor: pointer; font-family: inherit; text-decoration: none; text-align: center; margin-top: 10px; transition: all 0.15s; }
+.discover-btn:hover { color: var(--text); border-color: var(--border); }
+.discover-btn.visible { display: block; }
+
+.score-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 3rem; }
+.score { font-size: 13px; color: var(--text-dim); opacity: 0.7; }
+.reset-btn { background: transparent; border: 1px solid var(--border); color: var(--text-dim); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: all 0.2s; opacity: 0.6; }
+.reset-btn:hover { opacity: 1; color: var(--text); transform: rotate(-90deg); }
+.reset-btn svg { width: 13px; height: 13px; }
 </style>
+</head>
+<body>
 <div id="app">
-  <div class="header">
-    <div class="subtitle">Seleziona almeno due lingue da indovinare</div>
-    <h1 class="title">Riconosci la lingua dei caratteri CJK</h1>
+  <div class="topbar">
+    <div class="lang-select">
+      <button class="lang-select-btn" id="ui-lang-btn" onclick="toggleLangMenu(event)">
+        <span class="flag" id="ui-lang-flag">🇮🇹</span>
+        <span id="ui-lang-label">Italiano</span>
+        <span class="chev">▾</span>
+      </button>
+      <div class="lang-menu" id="ui-lang-menu">
+        <button class="lang-option" onclick="setUiLang('it')"><span class="flag">🇮🇹</span> Italiano</button>
+        <button class="lang-option" onclick="setUiLang('en')"><span class="flag">🇺🇸</span> English</button>
+      </div>
+    </div>
   </div>
+
+  <div class="header">
+    <div class="subtitle" id="subtitle"></div>
+    <h1 class="title" id="title"></h1>
+    <p class="tagline" id="tagline"></p>
+  </div>
+
   <div class="lang-toggles" id="toggles"></div>
   <div class="char-card"><span class="char-display" id="char">?</span></div>
   <div class="answers" id="answers"></div>
   <div class="feedback" id="feedback"></div>
-  <button class="next-btn" id="next-btn" onclick="nextQuestion()">Prossimo carattere →</button>
-  <div class="score" id="score"></div>
+  <button class="next-btn" id="next-btn" onclick="nextQuestion()"></button>
+  <a class="discover-btn" id="discover-btn" target="_blank" rel="noopener"></a>
+  <div class="score-row">
+    <div class="score" id="score"></div>
+    <button class="reset-btn" id="reset-btn" onclick="resetScore()" title="Reset">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 1 0 3-6.7"/>
+        <polyline points="3 4 3 10 9 10"/>
+      </svg>
+    </button>
+  </div>
 </div>
+
 <script>
-const DATA = {
-  zh: {
-    label: "Cinese",
-    chars: ["你好","我","爱","汉字","中国","天","地","人","水","火","山","日","月","风","雨","学","书","语","话","文"]
+const I18N = {
+  it: {
+    subtitle: "Seleziona almeno due lingue da indovinare",
+    title: "Riconosci la lingua dei caratteri CJK",
+    tagline: "CJK è l'acronimo di Chinese, Japanese, Korean: le tre grandi scritture dell'Asia orientale.",
+    nextChar: "Prossimo carattere →",
+    discover: "Scopri il carattere ↗",
+    correct: "✓ Esatto!",
+    wrongWas: "✗ Era ",
+    scoreLabel: (s, t) => {
+      const pct = t > 0 ? Math.round((s / t) * 100) : 0;
+      return `${s} / ${t} corretti (${pct}%)`;
+    },
+    langs: { zh: "Cinese", ja: "Giapponese", ko: "Coreano" },
+    wiktionary: "it"
   },
-  ja: {
-    label: "Giapponese",
-    chars: ["あ","の","は","を","に","が","で","と","も","か","ね","よ","な","き","し","り","て","れ","い","ひらがな","カタカナ","ア","ウ","エ","ク","ス","テ","ト","ノ"]
-  },
-  ko: {
-    label: "Coreano",
-    chars: ["가","나","다","라","마","바","사","아","자","차","카","타","파","하","한국어","안녕","사랑","학교","사람","나라"]
+  en: {
+    subtitle: "Select at least two languages to guess",
+    title: "Recognize the language of CJK characters",
+    tagline: "CJK stands for Chinese, Japanese, Korean — the three great writing systems of East Asia.",
+    nextChar: "Next character →",
+    discover: "Learn about this character ↗",
+    correct: "✓ Correct!",
+    wrongWas: "✗ It was ",
+    scoreLabel: (s, t) => {
+      const pct = t > 0 ? Math.round((s / t) * 100) : 0;
+      return `${s} / ${t} correct (${pct}%)`;
+    },
+    langs: { zh: "Chinese", ja: "Japanese", ko: "Korean" },
+    wiktionary: "en"
   }
 };
 
+const UI_LANG_META = {
+  it: { flag: "🇮🇹", label: "Italiano" },
+  en: { flag: "🇺🇸", label: "English" }
+};
+
+const DATA = {
+  zh: { chars: ["你好","我","爱","汉字","中国","天","地","人","水","火","山","日","月","风","雨","学","书","语","话","文"] },
+  ja: { chars: ["あ","の","は","を","に","が","で","と","も","か","ね","よ","な","き","し","り","て","れ","い","ひらがな","カタカナ","ア","ウ","エ","ク","ス","テ","ト","ノ"] },
+  ko: { chars: ["가","나","다","라","마","바","사","아","자","차","카","타","파","하","한국어","안녕","사랑","학교","사람","나라"] }
+};
+
+let uiLang = 'it';
 let active = { zh: true, ja: true, ko: true };
 let score = 0, total = 0;
 let current = null;
 let answered = false;
 
+function t() { return I18N[uiLang]; }
+
 function activeKeys() { return Object.keys(active).filter(k => active[k]); }
 
+function applyUiLang() {
+  document.documentElement.lang = uiLang;
+  const meta = UI_LANG_META[uiLang];
+  document.getElementById('ui-lang-flag').textContent = meta.flag;
+  document.getElementById('ui-lang-label').textContent = meta.label;
+  document.getElementById('subtitle').textContent = t().subtitle;
+  document.getElementById('title').textContent = t().title;
+  document.getElementById('tagline').textContent = t().tagline;
+  document.getElementById('next-btn').textContent = t().nextChar;
+  document.getElementById('discover-btn').textContent = t().discover;
+  renderToggles();
+  // se c'è una domanda in corso, aggiorno i label risposte e il feedback
+  if (current) refreshAnswerLabels();
+  updateScore();
+}
+
+function setUiLang(lang) {
+  uiLang = lang;
+  document.getElementById('ui-lang-menu').classList.remove('open');
+  applyUiLang();
+}
+
+function toggleLangMenu(e) {
+  e.stopPropagation();
+  document.getElementById('ui-lang-menu').classList.toggle('open');
+}
+
+document.addEventListener('click', () => {
+  document.getElementById('ui-lang-menu').classList.remove('open');
+});
+
 function renderToggles() {
-  const t = document.getElementById('toggles');
-  t.innerHTML = '';
+  const el = document.getElementById('toggles');
+  el.innerHTML = '';
   Object.keys(DATA).forEach(k => {
     const on = active[k];
     const keys = activeKeys();
     const btn = document.createElement('button');
     btn.className = 'lang-btn' + (on ? ' active' : ' disabled-lang');
-    btn.textContent = DATA[k].label;
+    btn.textContent = t().langs[k];
     btn.onclick = () => {
       if (on && keys.length <= 2) return;
       active[k] = !active[k];
       renderToggles();
       nextQuestion();
     };
-    t.appendChild(btn);
+    el.appendChild(btn);
   });
 }
 
@@ -99,34 +229,56 @@ function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function nextQuestion() {
   answered = false;
   document.getElementById('next-btn').classList.remove('visible');
+  document.getElementById('discover-btn').classList.remove('visible');
   document.getElementById('feedback').textContent = '';
 
   const keys = activeKeys();
   const lang = pick(keys);
   const char = pick(DATA[lang].chars);
-  current = { lang, char };
+  // salvo le chiavi delle opzioni, non i label tradotti (così cambio lingua al volo)
+  const wrong = keys.filter(k => k !== lang);
+  const optKeys = [lang, ...wrong].sort(() => Math.random() - 0.5);
+  current = { lang, char, optKeys };
 
   document.getElementById('char').textContent = char;
-
-  const wrong = keys.filter(k => k !== lang);
-  const opts = [{ k: lang, label: DATA[lang].label }];
-  wrong.forEach(k => opts.push({ k, label: DATA[k].label }));
-  opts.sort(() => Math.random() - 0.5);
-
-  const ans = document.getElementById('answers');
-  ans.innerHTML = '';
-  opts.forEach(o => {
-    const btn = document.createElement('button');
-    btn.className = 'ans-btn';
-    btn.textContent = o.label;
-    btn.onclick = () => checkAnswer(o.k, btn, opts, ans);
-    ans.appendChild(btn);
-  });
-
+  renderAnswers();
   updateScore();
 }
 
-function checkAnswer(chosen, btn, opts, container) {
+function renderAnswers() {
+  const ans = document.getElementById('answers');
+  ans.innerHTML = '';
+  current.optKeys.forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'ans-btn';
+    btn.dataset.key = k;
+    btn.textContent = t().langs[k];
+    btn.onclick = () => checkAnswer(k, ans);
+    ans.appendChild(btn);
+  });
+}
+
+function refreshAnswerLabels() {
+  // aggiorna i label delle risposte quando cambia la ui lang a metà
+  const ans = document.getElementById('answers');
+  Array.from(ans.children).forEach(b => {
+    const k = b.dataset.key;
+    if (k) b.textContent = t().langs[k];
+  });
+  // feedback: se risposta data, rigenera il testo corretto
+  const fb = document.getElementById('feedback');
+  if (answered && current) {
+    // non so se l'utente aveva risposto giusto o sbagliato, derivo dallo stato dei bottoni
+    const wrongBtn = ans.querySelector('.ans-btn.wrong');
+    if (wrongBtn) {
+      fb.textContent = t().wrongWas + t().langs[current.lang];
+    } else {
+      fb.textContent = t().correct;
+    }
+  }
+}
+
+function checkAnswer(chosen, container) {
   if (answered) return;
   answered = true;
   total++;
@@ -135,25 +287,35 @@ function checkAnswer(chosen, btn, opts, container) {
 
   Array.from(container.children).forEach(b => {
     b.disabled = true;
-  });
-
-  Array.from(container.children).forEach(b => {
-    const key = opts.find(o => o.label === b.textContent)?.k;
+    const key = b.dataset.key;
     if (key === current.lang) b.classList.add('correct');
     else if (key === chosen && !correct) b.classList.add('wrong');
   });
 
   const fb = document.getElementById('feedback');
-  fb.textContent = correct ? '✓ Esatto!' : '✗ Era ' + DATA[current.lang].label;
+  fb.textContent = correct ? t().correct : t().wrongWas + t().langs[current.lang];
   document.getElementById('next-btn').classList.add('visible');
+
+  const discover = document.getElementById('discover-btn');
+  discover.href = `https://${t().wiktionary}.wiktionary.org/wiki/` + encodeURIComponent(current.char);
+  discover.classList.add('visible');
+
   updateScore();
 }
 
 function updateScore() {
   const s = document.getElementById('score');
-  s.textContent = total > 0 ? `${score} / ${total} corretti` : '';
+  s.textContent = total > 0 ? t().scoreLabel(score, total) : '';
 }
 
-renderToggles();
+function resetScore() {
+  score = 0;
+  total = 0;
+  updateScore();
+}
+
+applyUiLang();
 nextQuestion();
 </script>
+</body>
+</html>
