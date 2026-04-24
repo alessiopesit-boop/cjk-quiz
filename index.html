@@ -48,8 +48,8 @@ body { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe U
 .title { font-size: 28px; font-weight: 200; letter-spacing: -0.01em; line-height: 1.25; color: var(--text); margin-bottom: 0.75rem; }
 .tagline { font-size: 13px; font-weight: 300; color: var(--text-dim); line-height: 1.5; opacity: 0.85; }
 
-.lang-toggles { display: flex; gap: 8px; margin-bottom: 2.5rem; }
-.lang-btn { flex: 1; padding: 10px 0; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+.lang-toggles { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2.5rem; }
+.lang-btn { flex: 1 1 calc(33.333% - 6px); min-width: 90px; padding: 10px 8px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
 .lang-btn.active { background: var(--surface); font-weight: 500; }
 .lang-btn.disabled-lang { opacity: 0.4; }
 .lang-btn:hover { background: var(--surface-hover); }
@@ -237,6 +237,52 @@ const DATA = {
           { char: "개" }, { char: "내" }, { char: "대" }, { char: "래" }, { char: "매" }, { char: "배" }, { char: "새" }, { char: "애" }, { char: "재" }, { char: "채" },
           { char: "캐" }, { char: "태" }, { char: "패" }, { char: "해" }, { char: "한" }, { char: "국" }, { char: "말" }, { char: "람" }, { char: "입" }, { char: "있" },
           { char: "없" }
+        ]
+      }
+    }
+  },
+  southeast_asian: {
+    label: { it: "Sud-est asiatico", en: "Southeast Asian" },
+    scripts: {
+      th: {
+        label: { it: "Thailandese", en: "Thai" },
+        chars: [
+          // --- Consonanti (46) ---
+          { char: "ก" }, { char: "ข" }, { char: "ฃ" }, { char: "ค" }, { char: "ฅ" }, { char: "ฆ" }, { char: "ง" }, { char: "จ" }, { char: "ฉ" }, { char: "ช" },
+          { char: "ซ" }, { char: "ฌ" }, { char: "ญ" }, { char: "ฎ" }, { char: "ฏ" }, { char: "ฐ" }, { char: "ฑ" }, { char: "ฒ" }, { char: "ณ" }, { char: "ด" },
+          { char: "ต" }, { char: "ถ" }, { char: "ท" }, { char: "ธ" }, { char: "น" }, { char: "บ" }, { char: "ป" }, { char: "ผ" }, { char: "ฝ" }, { char: "พ" },
+          { char: "ฟ" }, { char: "ภ" }, { char: "ม" }, { char: "ย" }, { char: "ร" }, { char: "ฤ" }, { char: "ล" }, { char: "ฦ" }, { char: "ว" }, { char: "ศ" },
+          { char: "ษ" }, { char: "ส" }, { char: "ห" }, { char: "ฬ" }, { char: "อ" }, { char: "ฮ" },
+          // --- Vocali (15) ---
+          { char: "ะ" }, { char: "ั" }, { char: "า" }, { char: "ำ" }, { char: "ิ" }, { char: "ี" }, { char: "ึ" }, { char: "ื" }, { char: "ุ" }, { char: "ู" },
+          { char: "เ" }, { char: "แ" }, { char: "โ" }, { char: "ใ" }, { char: "ไ" }
+        ]
+      },
+      km: {
+        label: { it: "Cambogiano", en: "Khmer" },
+        chars: [
+          // --- Consonanti (33) ---
+          { char: "ក" }, { char: "ខ" }, { char: "គ" }, { char: "ឃ" }, { char: "ង" }, { char: "ច" }, { char: "ឆ" }, { char: "ជ" }, { char: "ឈ" }, { char: "ញ" },
+          { char: "ដ" }, { char: "ឋ" }, { char: "ឌ" }, { char: "ឍ" }, { char: "ណ" }, { char: "ត" }, { char: "ថ" }, { char: "ទ" }, { char: "ធ" }, { char: "ន" },
+          { char: "ប" }, { char: "ផ" }, { char: "ព" }, { char: "ភ" }, { char: "ម" }, { char: "យ" }, { char: "រ" }, { char: "ល" }, { char: "វ" }, { char: "ស" },
+          { char: "ហ" }, { char: "ឡ" }, { char: "អ" },
+          // --- Vocali dipendenti e indipendenti (30) ---
+          { char: "ា" }, { char: "ិ" }, { char: "ី" }, { char: "ឹ" }, { char: "ឺ" }, { char: "ុ" }, { char: "ូ" }, { char: "ួ" }, { char: "ើ" }, { char: "ឿ" },
+          { char: "ៀ" }, { char: "េ" }, { char: "ែ" }, { char: "ៃ" }, { char: "ោ" }, { char: "ៅ" }, { char: "ឥ" }, { char: "ឦ" }, { char: "ឧ" }, { char: "ឩ" },
+          { char: "ឪ" }, { char: "ឫ" }, { char: "ឬ" }, { char: "ឭ" }, { char: "ឮ" }, { char: "ឯ" }, { char: "ឰ" }, { char: "ឱ" }, { char: "ឲ" }, { char: "ឳ" }
+        ]
+      },
+      my: {
+        label: { it: "Birmano", en: "Burmese" },
+        chars: [
+          // --- Consonanti (34) ---
+          { char: "က" }, { char: "ခ" }, { char: "ဂ" }, { char: "ဃ" }, { char: "င" }, { char: "စ" }, { char: "ဆ" }, { char: "ဇ" }, { char: "ဈ" }, { char: "ဉ" },
+          { char: "ည" }, { char: "ဋ" }, { char: "ဌ" }, { char: "ဍ" }, { char: "ဎ" }, { char: "ဏ" }, { char: "တ" }, { char: "ထ" }, { char: "ဒ" }, { char: "ဓ" },
+          { char: "န" }, { char: "ပ" }, { char: "ဖ" }, { char: "ဗ" }, { char: "ဘ" }, { char: "မ" }, { char: "ယ" }, { char: "ရ" }, { char: "လ" }, { char: "ဝ" },
+          { char: "သ" }, { char: "ဟ" }, { char: "ဠ" }, { char: "အ" },
+          // --- Vocali indipendenti e segni vocalici (17) ---
+          { char: "ဣ" }, { char: "ဤ" }, { char: "ဥ" }, { char: "ဦ" }, { char: "ဧ" }, { char: "ဩ" }, { char: "ဪ" }, { char: "ာ" }, { char: "ိ" }, { char: "ီ" },
+          { char: "ု" }, { char: "ူ" }, { char: "ေ" }, { char: "ဲ" }, { char: "ံ" }, { char: "့" }, { char: "း" }
         ]
       }
     }
