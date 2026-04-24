@@ -133,7 +133,6 @@ const I18N = {
       const pct = t > 0 ? Math.round((s / t) * 100) : 0;
       return `${s} / ${t} corretti (${pct}%)`;
     },
-    langs: { zh: "Cinese", ja: "Giapponese", ko: "Coreano" },
     wiktionary: "it"
   },
   en: {
@@ -148,7 +147,6 @@ const I18N = {
       const pct = t > 0 ? Math.round((s / t) * 100) : 0;
       return `${s} / ${t} correct (${pct}%)`;
     },
-    langs: { zh: "Chinese", ja: "Japanese", ko: "Korean" },
     wiktionary: "en"
   }
 };
@@ -158,14 +156,78 @@ const UI_LANG_META = {
   en: { flag: "🇺🇸", label: "English" }
 };
 
+// Struttura dati:
+//   DATA[familyKey] = { label: {it, en}, scripts: { [scriptKey]: ... } }
+//   DATA[familyKey].scripts[scriptKey] = { label: {it, en}, chars: [...] }
+//
+// Ogni carattere è un oggetto. Obbligatorio: `char`.
+// Campi opzionali previsti per release future (non usati ora):
+//   meaning_it, meaning_en  → significato del carattere
+//   category                → "animals" | "numbers" | "days" | ... (futuri filtri)
+//   difficulty              → 1 | 2 | 3 (livello difficoltà per carattere)
+//   pronunciation           → pinyin (zh) / romaji (ja) / romanization (ko) / ecc.
+//   stroke_count            → numero di tratti (per hanzi/kanji)
 const DATA = {
-  zh: { chars: ["你好","我","爱","汉字","中国","天","地","人","水","火","山","日","月","风","雨","学","书","语","话","文"] },
-  ja: { chars: ["あ","の","は","を","に","が","で","と","も","か","ね","よ","な","き","し","り","て","れ","い","ひらがな","カタカナ","ア","ウ","エ","ク","ス","テ","ト","ノ"] },
-  ko: { chars: ["가","나","다","라","마","바","사","아","자","차","카","타","파","하","한국어","안녕","사랑","학교","사람","나라"] }
+  east_asian: {
+    label: { it: "Asia orientale", en: "East Asian" },
+    scripts: {
+      zh: {
+        label: { it: "Cinese", en: "Chinese" },
+        chars: [
+          { char: "你好" }, { char: "我" }, { char: "爱" }, { char: "汉字" },
+          { char: "中国" }, { char: "天" }, { char: "地" }, { char: "人" },
+          { char: "水" }, { char: "火" }, { char: "山" }, { char: "日" },
+          { char: "月" }, { char: "风" }, { char: "雨" }, { char: "学" },
+          { char: "书" }, { char: "语" }, { char: "话" }, { char: "文" }
+        ]
+      },
+      ja: {
+        label: { it: "Giapponese", en: "Japanese" },
+        chars: [
+          { char: "あ" }, { char: "の" }, { char: "は" }, { char: "を" },
+          { char: "に" }, { char: "が" }, { char: "で" }, { char: "と" },
+          { char: "も" }, { char: "か" }, { char: "ね" }, { char: "よ" },
+          { char: "な" }, { char: "き" }, { char: "し" }, { char: "り" },
+          { char: "て" }, { char: "れ" }, { char: "い" },
+          { char: "ひらがな" }, { char: "カタカナ" },
+          { char: "ア" }, { char: "ウ" }, { char: "エ" }, { char: "ク" },
+          { char: "ス" }, { char: "テ" }, { char: "ト" }, { char: "ノ" }
+        ]
+      },
+      ko: {
+        label: { it: "Coreano", en: "Korean" },
+        chars: [
+          { char: "가" }, { char: "나" }, { char: "다" }, { char: "라" },
+          { char: "마" }, { char: "바" }, { char: "사" }, { char: "아" },
+          { char: "자" }, { char: "차" }, { char: "카" }, { char: "타" },
+          { char: "파" }, { char: "하" },
+          { char: "한국어" }, { char: "안녕" }, { char: "사랑" },
+          { char: "학교" }, { char: "사람" }, { char: "나라" }
+        ]
+      }
+    }
+  }
 };
 
+// Indice piatto { scriptKey → { script, familyKey } } costruito una volta sola.
+// Evita di attraversare la gerarchia ogni volta che serve una scrittura.
+const SCRIPT_INDEX = (() => {
+  const idx = {};
+  Object.entries(DATA).forEach(([familyKey, family]) => {
+    Object.entries(family.scripts).forEach(([scriptKey, script]) => {
+      idx[scriptKey] = { script, familyKey };
+    });
+  });
+  return idx;
+})();
+
+function getScript(scriptKey) { return SCRIPT_INDEX[scriptKey]?.script; }
+function scriptLabel(scriptKey, lang) { return getScript(scriptKey)?.label[lang] || scriptKey; }
+function allScriptKeys() { return Object.keys(SCRIPT_INDEX); }
+
 let uiLang = 'it';
-let active = { zh: true, ja: true, ko: true };
+// active: { [scriptKey]: boolean } — inizialmente tutte le scritture attive
+let active = Object.fromEntries(allScriptKeys().map(k => [k, true]));
 let score = 0, total = 0;
 let current = null;
 let answered = false;
@@ -208,12 +270,12 @@ document.addEventListener('click', () => {
 function renderToggles() {
   const el = document.getElementById('toggles');
   el.innerHTML = '';
-  Object.keys(DATA).forEach(k => {
+  allScriptKeys().forEach(k => {
     const on = active[k];
     const keys = activeKeys();
     const btn = document.createElement('button');
     btn.className = 'lang-btn' + (on ? ' active' : ' disabled-lang');
-    btn.textContent = t().langs[k];
+    btn.textContent = scriptLabel(k, uiLang);
     btn.onclick = () => {
       if (on && keys.length <= 2) return;
       active[k] = !active[k];
@@ -234,7 +296,8 @@ function nextQuestion() {
 
   const keys = activeKeys();
   const lang = pick(keys);
-  const char = pick(DATA[lang].chars);
+  const charObj = pick(getScript(lang).chars);
+  const char = charObj.char;
   // salvo le chiavi delle opzioni, non i label tradotti (così cambio lingua al volo)
   const wrong = keys.filter(k => k !== lang);
   const optKeys = [lang, ...wrong].sort(() => Math.random() - 0.5);
@@ -252,7 +315,7 @@ function renderAnswers() {
     const btn = document.createElement('button');
     btn.className = 'ans-btn';
     btn.dataset.key = k;
-    btn.textContent = t().langs[k];
+    btn.textContent = scriptLabel(k, uiLang);
     btn.onclick = () => checkAnswer(k, ans);
     ans.appendChild(btn);
   });
@@ -263,7 +326,7 @@ function refreshAnswerLabels() {
   const ans = document.getElementById('answers');
   Array.from(ans.children).forEach(b => {
     const k = b.dataset.key;
-    if (k) b.textContent = t().langs[k];
+    if (k) b.textContent = scriptLabel(k, uiLang);
   });
   // feedback: se risposta data, rigenera il testo corretto
   const fb = document.getElementById('feedback');
@@ -271,7 +334,7 @@ function refreshAnswerLabels() {
     // non so se l'utente aveva risposto giusto o sbagliato, derivo dallo stato dei bottoni
     const wrongBtn = ans.querySelector('.ans-btn.wrong');
     if (wrongBtn) {
-      fb.textContent = t().wrongWas + t().langs[current.lang];
+      fb.textContent = t().wrongWas + scriptLabel(current.lang, uiLang);
     } else {
       fb.textContent = t().correct;
     }
@@ -293,7 +356,7 @@ function checkAnswer(chosen, container) {
   });
 
   const fb = document.getElementById('feedback');
-  fb.textContent = correct ? t().correct : t().wrongWas + t().langs[current.lang];
+  fb.textContent = correct ? t().correct : t().wrongWas + scriptLabel(current.lang, uiLang);
   document.getElementById('next-btn').classList.add('visible');
 
   const discover = document.getElementById('discover-btn');
