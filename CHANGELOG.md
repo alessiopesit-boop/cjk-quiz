@@ -10,6 +10,9 @@ e il progetto segue il [Semantic Versioning](https://semver.org/lang/it/).
 ### Modificato
 - Refactor dataset: struttura a famiglie di scritture con label localizzate inline e caratteri come oggetti estensibili (#2)
 
+### Aggiunto
+- Dataset CJK espanso da 69 a 449 caratteri (#3)
+
 ## [0.2.0] - 2026-04-23
 ### Aggiunto
 - Menu lingua UI (italiano/inglese) con bandiere
