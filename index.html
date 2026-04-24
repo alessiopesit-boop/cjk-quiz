@@ -174,35 +174,69 @@ const DATA = {
       zh: {
         label: { it: "Cinese", en: "Chinese" },
         chars: [
-          { char: "你好" }, { char: "我" }, { char: "爱" }, { char: "汉字" },
-          { char: "中国" }, { char: "天" }, { char: "地" }, { char: "人" },
-          { char: "水" }, { char: "火" }, { char: "山" }, { char: "日" },
-          { char: "月" }, { char: "风" }, { char: "雨" }, { char: "学" },
-          { char: "书" }, { char: "语" }, { char: "话" }, { char: "文" }
+          { char: "我" }, { char: "你" }, { char: "他" }, { char: "她" }, { char: "它" }, { char: "们" }, { char: "这" }, { char: "那" }, { char: "什" }, { char: "么" },
+          { char: "一" }, { char: "二" }, { char: "三" }, { char: "四" }, { char: "五" }, { char: "六" }, { char: "七" }, { char: "八" }, { char: "九" }, { char: "十" },
+          { char: "百" }, { char: "千" }, { char: "万" }, { char: "零" }, { char: "个" }, { char: "是" }, { char: "有" }, { char: "不" }, { char: "没" }, { char: "在" },
+          { char: "去" }, { char: "来" }, { char: "做" }, { char: "想" }, { char: "要" }, { char: "会" }, { char: "能" }, { char: "可" }, { char: "以" }, { char: "说" },
+          { char: "看" }, { char: "听" }, { char: "吃" }, { char: "喝" }, { char: "买" }, { char: "卖" }, { char: "爱" }, { char: "喜" }, { char: "欢" }, { char: "学" },
+          { char: "习" }, { char: "工" }, { char: "作" }, { char: "知" }, { char: "道" }, { char: "认" }, { char: "识" }, { char: "年" }, { char: "月" }, { char: "日" },
+          { char: "天" }, { char: "时" }, { char: "分" }, { char: "秒" }, { char: "早" }, { char: "晚" }, { char: "现" }, { char: "今" }, { char: "昨" }, { char: "明" },
+          { char: "点" }, { char: "水" }, { char: "火" }, { char: "山" }, { char: "风" }, { char: "雨" }, { char: "雪" }, { char: "云" }, { char: "星" }, { char: "太" },
+          { char: "阳" }, { char: "地" }, { char: "田" }, { char: "人" }, { char: "家" }, { char: "爸" }, { char: "妈" }, { char: "儿" }, { char: "女" }, { char: "子" },
+          { char: "朋" }, { char: "友" }, { char: "老" }, { char: "师" }, { char: "生" }, { char: "男" }, { char: "大" }, { char: "小" }, { char: "多" }, { char: "少" },
+          { char: "高" }, { char: "低" }, { char: "长" }, { char: "短" }, { char: "好" }, { char: "坏" }, { char: "新" }, { char: "旧" }, { char: "热" }, { char: "冷" },
+          { char: "快" }, { char: "慢" }, { char: "红" }, { char: "白" }, { char: "黑" }, { char: "上" }, { char: "下" }, { char: "左" }, { char: "右" }, { char: "前" },
+          { char: "后" }, { char: "东" }, { char: "西" }, { char: "南" }, { char: "北" }, { char: "中" }, { char: "外" }, { char: "里" }, { char: "书" }, { char: "字" },
+          { char: "文" }, { char: "语" }, { char: "话" }, { char: "车" }, { char: "飞" }, { char: "机" }, { char: "电" }, { char: "脑" }, { char: "手" }, { char: "口" },
+          { char: "心" }, { char: "头" }, { char: "眼" }, { char: "耳" }, { char: "国" }, { char: "京" }, { char: "店" }, { char: "校" }, { char: "院" }, { char: "市" },
+          { char: "米" }, { char: "茶" }, { char: "饭" }, { char: "面" }, { char: "肉" }, { char: "鱼" }, { char: "很" }, { char: "也" }, { char: "都" }, { char: "还" },
+          { char: "就" }, { char: "只" }, { char: "给" }, { char: "和" }, { char: "或" }, { char: "但" }, { char: "因" }, { char: "为" }
         ]
       },
       ja: {
         label: { it: "Giapponese", en: "Japanese" },
         chars: [
-          { char: "あ" }, { char: "の" }, { char: "は" }, { char: "を" },
-          { char: "に" }, { char: "が" }, { char: "で" }, { char: "と" },
-          { char: "も" }, { char: "か" }, { char: "ね" }, { char: "よ" },
-          { char: "な" }, { char: "き" }, { char: "し" }, { char: "り" },
-          { char: "て" }, { char: "れ" }, { char: "い" },
-          { char: "ひらがな" }, { char: "カタカナ" },
-          { char: "ア" }, { char: "ウ" }, { char: "エ" }, { char: "ク" },
-          { char: "ス" }, { char: "テ" }, { char: "ト" }, { char: "ノ" }
+          // --- Hiragana (46) ---
+          { char: "あ" }, { char: "い" }, { char: "う" }, { char: "え" }, { char: "お" }, { char: "か" }, { char: "き" }, { char: "く" }, { char: "け" }, { char: "こ" },
+          { char: "さ" }, { char: "し" }, { char: "す" }, { char: "せ" }, { char: "そ" }, { char: "た" }, { char: "ち" }, { char: "つ" }, { char: "て" }, { char: "と" },
+          { char: "な" }, { char: "に" }, { char: "ぬ" }, { char: "ね" }, { char: "の" }, { char: "は" }, { char: "ひ" }, { char: "ふ" }, { char: "へ" }, { char: "ほ" },
+          { char: "ま" }, { char: "み" }, { char: "む" }, { char: "め" }, { char: "も" }, { char: "や" }, { char: "ゆ" }, { char: "よ" }, { char: "ら" }, { char: "り" },
+          { char: "る" }, { char: "れ" }, { char: "ろ" }, { char: "わ" }, { char: "を" }, { char: "ん" },
+          // --- Katakana (46) ---
+          { char: "ア" }, { char: "イ" }, { char: "ウ" }, { char: "エ" }, { char: "オ" }, { char: "カ" }, { char: "キ" }, { char: "ク" }, { char: "ケ" }, { char: "コ" },
+          { char: "サ" }, { char: "シ" }, { char: "ス" }, { char: "セ" }, { char: "ソ" }, { char: "タ" }, { char: "チ" }, { char: "ツ" }, { char: "テ" }, { char: "ト" },
+          { char: "ナ" }, { char: "ニ" }, { char: "ヌ" }, { char: "ネ" }, { char: "ノ" }, { char: "ハ" }, { char: "ヒ" }, { char: "フ" }, { char: "ヘ" }, { char: "ホ" },
+          { char: "マ" }, { char: "ミ" }, { char: "ム" }, { char: "メ" }, { char: "モ" }, { char: "ヤ" }, { char: "ユ" }, { char: "ヨ" }, { char: "ラ" }, { char: "リ" },
+          { char: "ル" }, { char: "レ" }, { char: "ロ" }, { char: "ワ" }, { char: "ヲ" }, { char: "ン" },
+          // --- Kanji base (74, Jōyō livelli 1-2) ---
+          { char: "日" }, { char: "月" }, { char: "火" }, { char: "水" }, { char: "木" }, { char: "金" }, { char: "土" }, { char: "人" }, { char: "口" }, { char: "目" },
+          { char: "耳" }, { char: "手" }, { char: "足" }, { char: "大" }, { char: "小" }, { char: "上" }, { char: "下" }, { char: "左" }, { char: "右" }, { char: "中" },
+          { char: "山" }, { char: "川" }, { char: "林" }, { char: "森" }, { char: "田" }, { char: "石" }, { char: "本" }, { char: "年" }, { char: "十" }, { char: "百" },
+          { char: "千" }, { char: "円" }, { char: "車" }, { char: "犬" }, { char: "猫" }, { char: "雨" }, { char: "空" }, { char: "風" }, { char: "雪" }, { char: "花" },
+          { char: "国" }, { char: "東" }, { char: "西" }, { char: "南" }, { char: "北" }, { char: "今" }, { char: "時" }, { char: "分" }, { char: "学" }, { char: "校" },
+          { char: "先" }, { char: "生" }, { char: "名" }, { char: "字" }, { char: "音" }, { char: "気" }, { char: "元" }, { char: "高" }, { char: "魚" }, { char: "肉" },
+          { char: "茶" }, { char: "米" }, { char: "食" }, { char: "飲" }, { char: "行" }, { char: "来" }, { char: "見" }, { char: "聞" }, { char: "言" }, { char: "話" },
+          { char: "書" }, { char: "読" }, { char: "買" }, { char: "売" }
         ]
       },
       ko: {
         label: { it: "Coreano", en: "Korean" },
         chars: [
-          { char: "가" }, { char: "나" }, { char: "다" }, { char: "라" },
-          { char: "마" }, { char: "바" }, { char: "사" }, { char: "아" },
-          { char: "자" }, { char: "차" }, { char: "카" }, { char: "타" },
-          { char: "파" }, { char: "하" },
-          { char: "한국어" }, { char: "안녕" }, { char: "사랑" },
-          { char: "학교" }, { char: "사람" }, { char: "나라" }
+          // --- Jamo base (24: 14 consonanti + 10 vocali) ---
+          { char: "ㄱ" }, { char: "ㄴ" }, { char: "ㄷ" }, { char: "ㄹ" }, { char: "ㅁ" }, { char: "ㅂ" }, { char: "ㅅ" }, { char: "ㅇ" }, { char: "ㅈ" }, { char: "ㅊ" },
+          { char: "ㅋ" }, { char: "ㅌ" }, { char: "ㅍ" }, { char: "ㅎ" }, { char: "ㅏ" }, { char: "ㅑ" }, { char: "ㅓ" }, { char: "ㅕ" }, { char: "ㅗ" }, { char: "ㅛ" },
+          { char: "ㅜ" }, { char: "ㅠ" }, { char: "ㅡ" }, { char: "ㅣ" },
+          // --- Sillabe composte frequenti (91) ---
+          { char: "가" }, { char: "나" }, { char: "다" }, { char: "라" }, { char: "마" }, { char: "바" }, { char: "사" }, { char: "아" }, { char: "자" }, { char: "차" },
+          { char: "카" }, { char: "타" }, { char: "파" }, { char: "하" }, { char: "거" }, { char: "너" }, { char: "더" }, { char: "러" }, { char: "머" }, { char: "버" },
+          { char: "서" }, { char: "어" }, { char: "저" }, { char: "처" }, { char: "커" }, { char: "터" }, { char: "퍼" }, { char: "허" }, { char: "고" }, { char: "노" },
+          { char: "도" }, { char: "로" }, { char: "모" }, { char: "보" }, { char: "소" }, { char: "오" }, { char: "조" }, { char: "초" }, { char: "코" }, { char: "토" },
+          { char: "포" }, { char: "호" }, { char: "구" }, { char: "누" }, { char: "두" }, { char: "루" }, { char: "무" }, { char: "부" }, { char: "수" }, { char: "우" },
+          { char: "주" }, { char: "추" }, { char: "쿠" }, { char: "투" }, { char: "푸" }, { char: "후" }, { char: "기" }, { char: "니" }, { char: "디" }, { char: "리" },
+          { char: "미" }, { char: "비" }, { char: "시" }, { char: "이" }, { char: "지" }, { char: "치" }, { char: "키" }, { char: "티" }, { char: "피" }, { char: "히" },
+          { char: "개" }, { char: "내" }, { char: "대" }, { char: "래" }, { char: "매" }, { char: "배" }, { char: "새" }, { char: "애" }, { char: "재" }, { char: "채" },
+          { char: "캐" }, { char: "태" }, { char: "패" }, { char: "해" }, { char: "한" }, { char: "국" }, { char: "말" }, { char: "람" }, { char: "입" }, { char: "있" },
+          { char: "없" }
         ]
       }
     }
