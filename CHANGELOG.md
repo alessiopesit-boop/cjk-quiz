@@ -9,12 +9,15 @@ e il progetto segue il [Semantic Versioning](https://semver.org/lang/it/).
 
 ### Modificato
 - Refactor dataset: struttura a famiglie di scritture con label localizzate inline e caratteri come oggetti estensibili (#2)
+- UI selezione scritture: accordion a famiglie con toggle individuale e di gruppo (#7)
+- Opzioni risposta limitate a max 4 per giocabilità con molte scritture (#7)
 
 ### Aggiunto
 - Dataset CJK espanso da 69 a 449 caratteri (#3)
 - Scritture sud-est asiatiche: Thai, Khmer, Birmano (175 caratteri totali, #4)
 - Scritture indiane: Devanagari, Tamil, Bengalese (152 caratteri totali, #5)
 - Scritture mediorientali: Arabo, Ebraico (63 caratteri totali, #6)
+
 
 ## [0.2.0] - 2026-04-23
 ### Aggiunto
