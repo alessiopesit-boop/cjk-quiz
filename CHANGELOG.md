@@ -12,7 +12,8 @@ e il progetto segue il [Semantic Versioning](https://semver.org/lang/it/).
 
 ### Aggiunto
 - Dataset CJK espanso da 69 a 449 caratteri (#3)
-- - Scritture sud-est asiatiche: Thai, Khmer, Birmano (175 caratteri totali, #4)
+- Scritture sud-est asiatiche: Thai, Khmer, Birmano (175 caratteri totali, #4)
+- Scritture indiane: Devanagari, Tamil, Bengalese (152 caratteri totali, #5)
 
 ## [0.2.0] - 2026-04-23
 ### Aggiunto
