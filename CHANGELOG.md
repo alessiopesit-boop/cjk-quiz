@@ -11,9 +11,9 @@ e il progetto segue il [Semantic Versioning](https://semver.org/lang/it/).
 - Refactor dataset: struttura a famiglie di scritture con label localizzate inline e caratteri come oggetti estensibili (#2)
 - UI selezione scritture: accordion a famiglie con toggle individuale e di gruppo (#7)
 - Opzioni risposta limitate a max 4 per giocabilità con molte scritture (#7)
-- Rebrand a "Guess the Char" con scope esteso a tutte le scritture del mondo (#10)
-- Aggiornati metadati SEO, Open Graph, Twitter Card
-- README riscritto
+- Rebrand a "Guess the Char" con scope esteso a tutte le scritture del mondo (#8)
+- Aggiornati metadati SEO, Open Graph, Twitter Card (#8)
+- README riscritto (#8)
 
 ### Aggiunto
 - Dataset CJK espanso da 69 a 449 caratteri (#3)
