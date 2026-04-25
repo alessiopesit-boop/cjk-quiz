@@ -103,7 +103,7 @@ body { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe U
   </div>
 
   <div class="lang-toggles" id="toggles"></div>
-  <div class="char-card"><span class="char-display" id="char">?</span></div>
+  <div class="char-card"><span class="char-display" id="char" dir="auto">?</span></div>
   <div class="answers" id="answers"></div>
   <div class="feedback" id="feedback"></div>
   <button class="next-btn" id="next-btn" onclick="nextQuestion()"></button>
@@ -333,6 +333,35 @@ const DATA = {
           { char: "ঔ" },
           // --- Vocali dipendenti / matras (10) ---
           { char: "া" }, { char: "ি" }, { char: "ী" }, { char: "ু" }, { char: "ূ" }, { char: "ৃ" }, { char: "ে" }, { char: "ৈ" }, { char: "ো" }, { char: "ৌ" }
+        ]
+      }
+    }
+  },
+  middle_eastern: {
+    label: { it: "Mediorientali", en: "Middle Eastern" },
+    scripts: {
+      ar: {
+        label: { it: "Arabo", en: "Arabic" },
+        chars: [
+          // --- Lettere base (28) ---
+          { char: "ا" }, { char: "ب" }, { char: "ت" }, { char: "ث" }, { char: "ج" }, { char: "ح" }, { char: "خ" }, { char: "د" }, { char: "ذ" }, { char: "ر" },
+          { char: "ز" }, { char: "س" }, { char: "ش" }, { char: "ص" }, { char: "ض" }, { char: "ط" }, { char: "ظ" }, { char: "ع" }, { char: "غ" }, { char: "ف" },
+          { char: "ق" }, { char: "ك" }, { char: "ل" }, { char: "م" }, { char: "ن" }, { char: "ه" }, { char: "و" }, { char: "ي" },
+          // --- Hamza e varianti (6) ---
+          { char: "ء" }, { char: "أ" }, { char: "إ" }, { char: "ؤ" }, { char: "ئ" }, { char: "آ" },
+          // --- Forme alternative (2) ---
+          { char: "ى" }, { char: "ة" }
+        ]
+      },
+      he: {
+        label: { it: "Ebraico", en: "Hebrew" },
+        chars: [
+          // --- Lettere base (22) ---
+          { char: "א" }, { char: "ב" }, { char: "ג" }, { char: "ד" }, { char: "ה" }, { char: "ו" }, { char: "ז" }, { char: "ח" }, { char: "ט" }, { char: "י" },
+          { char: "כ" }, { char: "ל" }, { char: "מ" }, { char: "נ" }, { char: "ס" }, { char: "ע" }, { char: "פ" }, { char: "צ" }, { char: "ק" }, { char: "ר" },
+          { char: "ש" }, { char: "ת" },
+          // --- Forme finali / sofit (5) ---
+          { char: "ך" }, { char: "ם" }, { char: "ן" }, { char: "ף" }, { char: "ץ" }
         ]
       }
     }
