@@ -48,11 +48,30 @@ body { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe U
 .title { font-size: 28px; font-weight: 200; letter-spacing: -0.01em; line-height: 1.25; color: var(--text); margin-bottom: 0.75rem; }
 .tagline { font-size: 13px; font-weight: 300; color: var(--text-dim); line-height: 1.5; opacity: 0.85; }
 
-.lang-toggles { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2.5rem; }
-.lang-btn { flex: 1 1 calc(33.333% - 6px); min-width: 90px; padding: 10px 8px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 13px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
-.lang-btn.active { background: var(--surface); font-weight: 500; }
-.lang-btn.disabled-lang { opacity: 0.4; }
-.lang-btn:hover { background: var(--surface-hover); }
+/* Selettore famiglie/scritture (accordion) */
+.families { display: flex; flex-direction: column; gap: 8px; margin-bottom: 2.5rem; }
+.family { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg); overflow: hidden; }
+.family-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer; user-select: none; transition: background 0.15s; }
+.family-header:hover { background: var(--surface); }
+.family-chevron { font-size: 10px; color: var(--text-dim); transition: transform 0.2s; flex-shrink: 0; width: 12px; }
+.family.open .family-chevron { transform: rotate(90deg); }
+.family-name { flex: 1; font-size: 14px; font-weight: 500; }
+.family-count { font-size: 12px; color: var(--text-dim); opacity: 0.8; }
+.family-toggle { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border); background: transparent; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+.family-toggle:hover:not(:disabled) { border-color: var(--text-dim); }
+.family-toggle:disabled { opacity: 0.4; cursor: not-allowed; }
+.family-toggle.all-on { background: var(--text); border-color: var(--text); }
+.family-toggle.partial::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--text-dim); }
+.family-scripts { display: none; padding: 0 14px 12px 14px; flex-direction: column; gap: 6px; }
+.family.open .family-scripts { display: flex; }
+.script-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); border: 1px solid transparent; background: transparent; color: var(--text); font-size: 13px; cursor: pointer; font-family: inherit; text-align: left; transition: all 0.15s; }
+.script-item:hover:not(:disabled) { background: var(--surface); }
+.script-item.active { background: var(--surface); border-color: var(--border); }
+.script-item:disabled { cursor: not-allowed; }
+.script-checkbox { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.script-item.active .script-checkbox { background: var(--text); border-color: var(--text); }
+.script-item.active .script-checkbox::after { content: '✓'; color: var(--bg); font-size: 11px; font-weight: bold; line-height: 1; }
+.script-name { flex: 1; }
 
 .char-card { background: var(--surface); border-radius: var(--radius-lg); padding: 3rem 1.5rem; text-align: center; margin-bottom: 2.5rem; min-height: 200px; display: flex; align-items: center; justify-content: center; }
 .char-display { font-size: 104px; line-height: 1; user-select: none; font-weight: 300; }
@@ -102,7 +121,7 @@ body { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe U
     <p class="tagline" id="tagline"></p>
   </div>
 
-  <div class="lang-toggles" id="toggles"></div>
+  <div class="families" id="families"></div>
   <div class="char-card"><span class="char-display" id="char" dir="auto">?</span></div>
   <div class="answers" id="answers"></div>
   <div class="feedback" id="feedback"></div>
@@ -426,24 +445,138 @@ document.addEventListener('click', () => {
   document.getElementById('ui-lang-menu').classList.remove('open');
 });
 
-function renderToggles() {
-  const el = document.getElementById('toggles');
+// Stato accordion: quali famiglie sono espanse. Default: tutte chiuse.
+const familyOpen = Object.fromEntries(Object.keys(DATA).map(k => [k, false]));
+
+// Riepilogo stato per una famiglia: { active: N, total: M, allOn, allOff, partial }
+function familyStatus(familyKey) {
+  const family = DATA[familyKey];
+  const scriptKeys = Object.keys(family.scripts);
+  const total = scriptKeys.length;
+  const activeCount = scriptKeys.filter(k => active[k]).length;
+  return {
+    active: activeCount,
+    total,
+    allOn: activeCount === total,
+    allOff: activeCount === 0,
+    partial: activeCount > 0 && activeCount < total
+  };
+}
+
+// Quante scritture resterebbero attive se applicassimo `delta` al conteggio attuale
+function activeCountAfter(delta) { return activeKeys().length + delta; }
+
+function toggleScript(scriptKey) {
+  const wasOn = active[scriptKey];
+  // Se sto per spegnere e scenderei sotto 2, rifiuta
+  if (wasOn && activeCountAfter(-1) < 2) return;
+  active[scriptKey] = !wasOn;
+  renderFamilies();
+  nextQuestion();
+}
+
+function toggleFamily(familyKey) {
+  const family = DATA[familyKey];
+  const scriptKeys = Object.keys(family.scripts);
+  const status = familyStatus(familyKey);
+
+  if (status.allOn) {
+    // Sto per spegnere TUTTA la famiglia: verifica vincolo ≥ 2
+    if (activeCountAfter(-status.active) < 2) return;
+    scriptKeys.forEach(k => { active[k] = false; });
+  } else {
+    // Accendo tutte le scritture della famiglia
+    scriptKeys.forEach(k => { active[k] = true; });
+  }
+  renderFamilies();
+  nextQuestion();
+}
+
+function renderFamilies() {
+  const el = document.getElementById('families');
   el.innerHTML = '';
-  allScriptKeys().forEach(k => {
-    const on = active[k];
-    const keys = activeKeys();
-    const btn = document.createElement('button');
-    btn.className = 'lang-btn' + (on ? ' active' : ' disabled-lang');
-    btn.textContent = scriptLabel(k, uiLang);
-    btn.onclick = () => {
-      if (on && keys.length <= 2) return;
-      active[k] = !active[k];
-      renderToggles();
-      nextQuestion();
+  Object.entries(DATA).forEach(([familyKey, family]) => {
+    const status = familyStatus(familyKey);
+    const isOpen = familyOpen[familyKey];
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'family' + (isOpen ? ' open' : '');
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'family-header';
+    header.onclick = (e) => {
+      // Click sul cerchietto (toggle famiglia) non deve propagarsi all'header
+      if (e.target.closest('.family-toggle')) return;
+      familyOpen[familyKey] = !familyOpen[familyKey];
+      renderFamilies();
     };
-    el.appendChild(btn);
+
+    const chevron = document.createElement('span');
+    chevron.className = 'family-chevron';
+    chevron.textContent = '▶';
+    header.appendChild(chevron);
+
+    const name = document.createElement('span');
+    name.className = 'family-name';
+    name.textContent = family.label[uiLang];
+    header.appendChild(name);
+
+    const count = document.createElement('span');
+    count.className = 'family-count';
+    count.textContent = `${status.active}/${status.total}`;
+    header.appendChild(count);
+
+    // Cerchietto toggle famiglia
+    const famToggle = document.createElement('button');
+    famToggle.className = 'family-toggle';
+    if (status.allOn) famToggle.classList.add('all-on');
+    else if (status.partial) famToggle.classList.add('partial');
+    // Disabilitato se spegnerla farebbe scendere sotto 2
+    if (status.allOn && activeCountAfter(-status.active) < 2) {
+      famToggle.disabled = true;
+    }
+    famToggle.title = uiLang === 'it'
+      ? (status.allOn ? 'Disattiva tutta la famiglia' : 'Attiva tutta la famiglia')
+      : (status.allOn ? 'Disable whole family' : 'Enable whole family');
+    famToggle.onclick = (e) => {
+      e.stopPropagation();
+      toggleFamily(familyKey);
+    };
+    header.appendChild(famToggle);
+
+    wrapper.appendChild(header);
+
+    // Scritture (visibili solo se l'accordion è aperto, ma renderizzo sempre per stato consistente)
+    const scriptsBox = document.createElement('div');
+    scriptsBox.className = 'family-scripts';
+    Object.keys(family.scripts).forEach(scriptKey => {
+      const on = active[scriptKey];
+      const item = document.createElement('button');
+      item.className = 'script-item' + (on ? ' active' : '');
+      // Disabilitato se è acceso e spegnerlo scenderebbe sotto 2
+      if (on && activeCountAfter(-1) < 2) item.disabled = true;
+      item.onclick = () => toggleScript(scriptKey);
+
+      const cb = document.createElement('span');
+      cb.className = 'script-checkbox';
+      item.appendChild(cb);
+
+      const label = document.createElement('span');
+      label.className = 'script-name';
+      label.textContent = scriptLabel(scriptKey, uiLang);
+      item.appendChild(label);
+
+      scriptsBox.appendChild(item);
+    });
+    wrapper.appendChild(scriptsBox);
+
+    el.appendChild(wrapper);
   });
 }
+
+// Alias per chi chiamava la vecchia renderToggles
+function renderToggles() { renderFamilies(); }
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
@@ -457,8 +590,9 @@ function nextQuestion() {
   const lang = pick(keys);
   const charObj = pick(getScript(lang).chars);
   const char = charObj.char;
-  // salvo le chiavi delle opzioni, non i label tradotti (così cambio lingua al volo)
-  const wrong = keys.filter(k => k !== lang);
+  // Genero opzioni: corretta + fino a 3 distrattori random tra le scritture attive
+  const MAX_OPTIONS = 4;
+  const wrong = keys.filter(k => k !== lang).sort(() => Math.random() - 0.5).slice(0, MAX_OPTIONS - 1);
   const optKeys = [lang, ...wrong].sort(() => Math.random() - 0.5);
   current = { lang, char, optKeys };
 
