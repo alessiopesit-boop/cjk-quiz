@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages
+
+# Trigger: solo quando viene pubblicata una GitHub Release (cioe' quando
+# release-please mergia la Release PR, crea il tag e pubblica la Release).
+# I push diretti su main NON pubblicano: cosi' il sito live e' sempre
+# allineato all'ultimo tag.
+# workflow_dispatch e' lasciato attivo come fuga di sicurezza per pubblicare
+# manualmente l'ultimo main (demo, screenshot) senza creare una release.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Una sola pubblicazione in corso alla volta; le successive accodano e
+# possono cancellare quella in volo se serve.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Prepara cartella per Pages
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          # Copia in _site tutto cio' che e' web-pubblicabile dalla root,
+          # escludendo i file di meta-repo (CI, doc, manifest, license).
+          # `cp -a` preserva permessi/symlink; il dot-glob attiva e' attivato
+          # implicitamente dall'elenco esplicito qua sotto.
+          shopt -s extglob
+          # Copia tutto eccetto le esclusioni.
+          cp -a !(.git|.github|_site|CLAUDE.md|CHANGELOG.md|README.md|LICENSE|release-please-config.json|.release-please-manifest.json) _site/
+          # `.nojekyll` esplicito dentro _site (anche se gia' presente alla root)
+          touch _site/.nojekyll
+          ls -la _site
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy a GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
