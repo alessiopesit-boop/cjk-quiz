@@ -1,0 +1,123 @@
+name: Release please
+
+# workflow_dispatch utile quando vuoi "rilanciare" release-please senza un
+# nuovo commit (per esempio dopo aver aggiornato secret/PAT del repo: un rerun
+# dei run vecchi riusa i secret cached, mentre un nuovo run rilegge tutto).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          # PAT (RELEASE_PLEASE_TOKEN) invece del GITHUB_TOKEN automatico:
+          # cosi' la GitHub Release pubblicata da release-please propaga
+          # l'evento "release: published" e fa partire deploy.yml. Con il
+          # GITHUB_TOKEN GitHub blocca la propagazione (anti-loop).
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      # Checkout serve per leggere i body dei commit (per la Release pubblicata
+      # e/o per la Release PR aperta).
+      - name: Checkout (full history per leggere i body dei commit)
+        if: ${{ steps.release.outputs.release_created || steps.release.outputs.prs_created }}
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # ------- Branca A: Release appena pubblicata -------
+      # Riscrive il body della GitHub Release nello stile "In sintesi + Dettagli".
+      - name: Riscrivi il body della GitHub Release
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.release.outputs.tag_name }}
+          RELEASE_ID: ${{ steps.release.outputs.id }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          git fetch --tags --quiet
+          # Tag precedente in ordine semver decrescente, escluso quello corrente.
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${TAG_NAME}$" | head -1 || true)
+          if [ -z "${PREV_TAG}" ]; then
+            RANGE="${TAG_NAME}"
+          else
+            RANGE="${PREV_TAG}..${TAG_NAME}"
+          fi
+          echo "Range commit: ${RANGE}"
+
+          NEW_BODY=$(python3 .github/scripts/release-notes.py --range "${RANGE}")
+          if [ -z "${NEW_BODY}" ]; then
+            echo "Nessuna voce da pubblicare, lascio il body di release-please."
+            exit 0
+          fi
+
+          # PATCH del body via API (gh release edit accetta solo --notes-file
+          # con percorso, e jq lo facciamo a mano: piu' semplice via curl).
+          tmp=$(mktemp)
+          printf '%s' "${NEW_BODY}" | jq -Rs '{body: .}' > "${tmp}"
+          curl --fail --silent --show-error \
+            -X PATCH \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -H "Content-Type: application/json" \
+            --data @"${tmp}" \
+            "https://api.github.com/repos/${REPO}/releases/${RELEASE_ID}" \
+            > /dev/null
+          echo "Release body riscritto."
+
+      # ------- Branca B: Release PR aperta o aggiornata -------
+      # release-please tiene aperta una "Release PR" tra una release e l'altra
+      # e la aggiorna ad ogni nuovo commit rilasciabile. Il suo template di
+      # default e' bullet-only in inglese (`:robot: I have created a release`).
+      # Qui lo sostituiamo con lo stesso stile "In sintesi + Dettagli" della
+      # Release finale, cosi' chi review la PR vede gia' le note discorsive.
+      - name: Riscrivi il body della Release PR
+        if: ${{ steps.release.outputs.prs_created }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_JSON: ${{ steps.release.outputs.pr }}
+        run: |
+          set -euo pipefail
+          git fetch --tags --quiet
+
+          PR_NUMBER=$(printf '%s' "${PR_JSON}" | jq -r '.number')
+          if [ -z "${PR_NUMBER}" ] || [ "${PR_NUMBER}" = "null" ]; then
+            echo "Nessun numero PR negli output di release-please, salto."
+            exit 0
+          fi
+
+          LATEST_TAG=$(git tag --sort=-version:refname | head -1 || true)
+          if [ -z "${LATEST_TAG}" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="${LATEST_TAG}..HEAD"
+          fi
+          echo "Range commit (PR #${PR_NUMBER}): ${RANGE}"
+
+          NOTES=$(python3 .github/scripts/release-notes.py --range "${RANGE}")
+          if [ -z "${NOTES}" ]; then
+            echo "Nessuna voce rilasciabile in questo range, salto."
+            exit 0
+          fi
+
+          # Footer informativo: la PR e' un'anteprima della GitHub Release.
+          PREV_LABEL="${LATEST_TAG:-(prima release)}"
+          FOOTER=$(printf '\n\n---\n\n_Release PR generata da release-please. Al merge: viene creato il tag e la GitHub Release, e il workflow ne riscrive il body in questo stesso stile. Confronto con `%s`: vedi i commit nei "Files changed" e "Commits" della PR._\n' "${PREV_LABEL}")
+          NEW_BODY="${NOTES}${FOOTER}"
+
+          gh pr edit "${PR_NUMBER}" --repo "${REPO}" --body "${NEW_BODY}"
+          echo "Body della PR #${PR_NUMBER} aggiornato."
